@@ -27,7 +27,7 @@ function Board({
   onPlay: (nextSquares: string[]) => void;
 }) {
   function handleClick(i: number) {
-    if (calculateWinner(squares) || squares[i]) {
+    if (calculateWinner(squares).winner || squares[i]) {
       return;
     }
     const nextSquares = squares.slice();
@@ -40,7 +40,7 @@ function Board({
   }
 
   const isLastMove = squares.every((square) => square !== null);
-  const winner = calculateWinner(squares);
+  const { winner, line } = calculateWinner(squares);
   let status;
   if (winner) {
     status = "Winner: " + winner;
@@ -69,7 +69,7 @@ function Board({
                   key={i}
                   value={squares[i]}
                   onSquareClick={() => handleClick(i)}
-                  style={winner && squares[i] === winner ? winnerStyle : {}}
+                  style={line && line.includes(i) ? winnerStyle : {}}
                 />
               );
             })}
@@ -102,9 +102,7 @@ export default function Game() {
       );
       setLocations([...locations, getLocation(differentIndex)]);
     }
-    console.log(history, nextSquares);
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    console.log(nextHistory);
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
@@ -171,8 +169,8 @@ function calculateWinner(squares: string[]) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { winner: squares[a], line: lines[i] };
     }
   }
-  return null;
+  return { winner: null, line: null };
 }
